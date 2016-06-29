@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'dao/gateway/active_resource'
+
+require 'irb'
+IRB.start
