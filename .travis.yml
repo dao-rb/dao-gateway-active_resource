@@ -2,3 +2,5 @@ language: ruby
 rvm:
   - 2.3.0
 before_install: gem install bundler -v 1.11.2
+script:
+  - CODECLIMATE_REPO_TOKEN=d5d64405f6f096cac7bf060b04986c7d01228257d187d02a9cb0a7935b61679c bundle exec rspec
