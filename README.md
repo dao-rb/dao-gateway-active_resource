@@ -1,5 +1,6 @@
 # Dao::Gateway::ActiveResource
 
+[![Gem Version](https://badge.fury.io/rb/dao-gateway-active_resource.svg)](https://badge.fury.io/rb/dao-gateway-active_resource)
 [![Build Status](https://travis-ci.org/dao-rb/dao-gateway-active_resource.svg?branch=master)](https://travis-ci.org/dao-rb/dao-gateway-active_resource)
 [![Code Climate](https://codeclimate.com/github/dao-rb/dao-gateway-active_resource/badges/gpa.svg)](https://codeclimate.com/github/dao-rb/dao-gateway-active_resource)
 [![Test Coverage](https://codeclimate.com/github/dao-rb/dao-gateway-active_resource/badges/coverage.svg)](https://codeclimate.com/github/dao-rb/dao-gateway-active_resource/coverage)
