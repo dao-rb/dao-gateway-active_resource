@@ -2,15 +2,11 @@ module Dao
   module Gateway
     module ActiveResource
       class Base < Dao::Gateway::Base
-        def map(object, _)
-          import(object)
-        end
-
         def save!(domain, _)
           record = export(domain, record(domain.id))
           record.save!
 
-          domain.attributes = import(record).attributes
+          domain.attributes = import(record, domain.initialized_with).attributes
           domain
         rescue ::ActiveResource::ResourceInvalid
           raise Dao::Gateway::InvalidRecord.new(record.errors.to_hash)
@@ -33,16 +29,8 @@ module Dao
           record
         end
 
-        def import(relation)
-          unless relation.nil?
-            if relation.is_a?(::ActiveResource::Collection)
-              @transformer.many(relation)
-            elsif relation.is_a?(source)
-              @transformer.one(relation)
-            else
-              @transformer.other(relation)
-            end
-          end
+        def collection_scope?(relation)
+          relation.is_a?(::ActiveResource::Collection)
         end
 
         def record(domain_id)
