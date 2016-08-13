@@ -3,7 +3,7 @@ module Dao
     module ActiveResource
       class Base < Dao::Gateway::Base
         def save!(domain, _)
-          record = export(domain, record(domain.id))
+          record = export(domain, record(domain))
           record.save!
 
           domain.attributes = import(record, domain.initialized_with).attributes
@@ -33,8 +33,8 @@ module Dao
           relation.is_a?(::ActiveResource::Collection)
         end
 
-        def record(domain_id)
-          source.find(domain_id) if domain_id.present?
+        def record(domain)
+          source.find(domain.id) if domain.id.present?
         rescue ::ActiveResource::ResourceNotFound
           nil
         end
