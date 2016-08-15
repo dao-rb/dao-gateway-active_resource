@@ -20,10 +20,10 @@ module Dao
 
         protected
 
-        def export(base, record = nil)
-          return unless base
+        def export(domain, record = nil)
+          return unless domain
           record ||= source.new
-          attributes = base.attributes.except(*@black_list_attributes).stringify_keys
+          attributes = domain.attributes.except(*@black_list_attributes).stringify_keys
 
           record.attributes = attributes
           record
