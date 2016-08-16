@@ -22,7 +22,7 @@ module Dao
 
         def export(domain, record = nil)
           return unless domain
-          record ||= source.new
+          record ||= empty_record(domain)
           attributes = domain.attributes.except(*@black_list_attributes).stringify_keys
 
           record.attributes = attributes
@@ -31,6 +31,10 @@ module Dao
 
         def collection_scope?(relation)
           relation.is_a?(::ActiveResource::Collection)
+        end
+
+        def empty_record(_domain)
+          source.new
         end
 
         def record(domain)
