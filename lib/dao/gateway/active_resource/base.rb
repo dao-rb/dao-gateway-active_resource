@@ -16,6 +16,11 @@ module Dao
           scope.public_send(method_name, *args, &block)
         rescue ::ActiveResource::ResourceNotFound => e
           raise Dao::Gateway::RecordNotFound, e.message
+        rescue ::ActiveResource::ResourceInvalid => e
+          errors = {}
+          errors = source.format.decode(e.response.body) if e.response.body.present?
+
+          raise Dao::Gateway::InvalidRecord.new(errors)
         end
 
         protected
