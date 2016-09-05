@@ -21,6 +21,8 @@ module Dao
           errors = source.format.decode(e.response.body) if e.response.body.present?
 
           raise Dao::Gateway::InvalidRecord.new(errors)
+        rescue ::ActiveResource::ConnectionError => e
+          raise Dao::Gateway::BadConnection, e.to_s
         end
 
         protected
