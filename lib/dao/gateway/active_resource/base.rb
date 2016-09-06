@@ -10,6 +10,10 @@ module Dao
           domain
         rescue ::ActiveResource::ResourceInvalid
           raise Dao::Gateway::InvalidRecord.new(record.errors.to_hash)
+        rescue ::ActiveResource::ResourceNotFound => e
+          raise Dao::Gateway::RecordNotFound, e.message
+        rescue ::ActiveResource::ConnectionError => e
+          raise Dao::Gateway::BadConnection, e.to_s
         end
 
         def chain(scope, method_name, args, &block)
