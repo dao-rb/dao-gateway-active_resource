@@ -21,9 +21,13 @@ module Dao
         rescue ::ActiveResource::ResourceNotFound => e
           raise Dao::Gateway::RecordNotFound, e.message
         rescue ::ActiveResource::ResourceInvalid => e
-          errors = {}
-          errors = source.format.decode(e.response.body) if e.response.body.present?
-
+          errors = if e.response.is_a?(source)
+            e.response.errors.to_hash
+          elsif e.response.body.present?
+            source.format.decode(e.response.body)
+          else
+            {}
+          end
           raise Dao::Gateway::InvalidRecord.new(errors)
         rescue ::ActiveResource::ConnectionError => e
           raise Dao::Gateway::BadConnection, e.to_s
