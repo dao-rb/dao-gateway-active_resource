@@ -29,6 +29,8 @@ module Dao
             {}
           end
           raise Dao::Gateway::InvalidRecord.new(errors)
+        rescue ::ActiveResource::ForbiddenAccess => e
+          raise Dao::Gateway::ForbiddenRecord, e.message
         rescue ::ActiveResource::ConnectionError => e
           raise Dao::Gateway::BadConnection, e.to_s
         end
