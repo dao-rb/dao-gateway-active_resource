@@ -21,4 +21,70 @@ describe Dao::Gateway::ActiveResource::Base do
 
     expect(subject.save!(organization, nil).object_id).to eq organization.object_id
   end
+
+  describe 'exceptions' do
+    describe '#chain' do
+      class Organization
+        def self.foo; end
+      end
+
+      describe 'Dao::Gateway::RecordNotFound' do
+        before do
+          expect(Organization).to receive(:foo).and_raise(ActiveResource::ResourceNotFound.new(double(message: 'error message')))
+        end
+
+        it 'should raise error' do
+          expect{ gateway.chain(Organization, :foo, {}) }.to raise_error(Dao::Gateway::RecordNotFound, 'Failed.  Response message = error message.')
+        end
+      end
+
+      describe 'Dao::Gateway::InvalidRecord' do
+        before do
+          expect(Organization).to receive(:foo).and_raise(ActiveResource::ResourceInvalid.new(response))
+        end
+
+        context 'when response is a kind of source' do
+          let(:response) do
+            Organization.new.tap do |res|
+              allow(res).to receive(:errors).and_return(foo: :bar)
+            end
+          end
+
+          it 'should raise error' do
+            expect{ gateway.chain(Organization, :foo, {}) }.to raise_error(Dao::Gateway::InvalidRecord)
+          end
+
+          it 'should save error messages' do
+            begin
+              gateway.chain(Organization, :foo, {})
+            rescue Dao::Gateway::InvalidRecord => e
+              expect(e.errors).to eq(foo: :bar)
+            end
+          end
+        end
+
+        context 'when response is plain' do
+          let(:response) { Struct.new(:body).new( "{\"errors\":{\"name\":\"invalid\"}}") }
+
+          it 'should save error message' do
+            begin
+              gateway.chain(Organization, :foo, {})
+            rescue Dao::Gateway::InvalidRecord => e
+              expect(e.errors).to eq('name' => 'invalid')
+            end
+          end
+        end
+      end
+
+      describe 'Dao::Gateway::ForbiddenRecord' do
+        before do
+          expect(Organization).to receive(:foo).and_raise(ActiveResource::ForbiddenAccess.new(double(message: 'error message')))
+        end
+
+        it 'should raise error' do
+          expect{ gateway.chain(Organization, :foo, {}) }.to raise_error(Dao::Gateway::ForbiddenRecord, 'Failed.  Response message = error message.')
+        end
+      end
+    end
+  end
 end
