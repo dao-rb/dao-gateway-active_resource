@@ -10,16 +10,34 @@ describe Dao::Gateway::ActiveResource::Base do
   its(:transformer) { is_expected.to eq transformer }
   its(:black_list_attributes) { is_expected.to eq [] }
 
-  it 'should build entity' do
-    organization = Organization.find(44)
-    expect(subject.map(organization, nil)).to be_a OrganizationEntity
-  end
+  describe 'entity' do
+    let(:response) do
+      {
+        'login' => 'foobar',
+        'id' => 44,
+        'url' => 'https://api.github.com/orgs/foobar',
+        'type' => 'Organization'
+      }.to_json
+    end
 
-  it 'should save entity' do
-    organization = OrganizationEntity.new(id: 1, name: 'name', full_name: 'full name')
-    expect_any_instance_of(Organization).to receive(:save!)
+    before do
+      ActiveResource::HttpMock.respond_to do |mock|
+        mock.get '/organizations/44', {}, response, 200
+        mock.get '/organizations/1', {}, response, 200
+      end
+    end
 
-    expect(subject.save!(organization, nil).object_id).to eq organization.object_id
+    it 'should build entity' do
+      organization = Organization.find(44)
+      expect(subject.map(organization, nil)).to be_a OrganizationEntity
+    end
+
+    it 'should save entity' do
+      organization = OrganizationEntity.new(id: 1, name: 'name', full_name: 'full name')
+      expect_any_instance_of(Organization).to receive(:save!)
+
+      expect(subject.save!(organization, nil).object_id).to eq organization.object_id
+    end
   end
 
   describe 'exceptions' do
