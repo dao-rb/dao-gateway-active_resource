@@ -33,6 +33,8 @@ module Dao
           raise Dao::Gateway::ForbiddenRecord, e.message
         rescue ::ActiveResource::ConnectionError => e
           raise Dao::Gateway::BadConnection, e.to_s
+        rescue Errno::ECONNREFUSED => e
+          raise Dao::Gateway::BadConnection, e.to_s
         end
 
         protected

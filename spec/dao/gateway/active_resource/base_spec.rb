@@ -103,6 +103,16 @@ describe Dao::Gateway::ActiveResource::Base do
           expect{ gateway.chain(Organization, :foo, {}) }.to raise_error(Dao::Gateway::ForbiddenRecord, 'Failed.  Response message = error message.')
         end
       end
+
+      describe 'Dao::Gateway::BadConnection' do
+        before do
+          expect(Organization).to receive(:foo).and_raise(Errno::ECONNREFUSED.new('error message'))
+        end
+
+        it 'should raise error' do
+          expect{ gateway.chain(Organization, :foo, {}) }.to raise_error(Dao::Gateway::BadConnection, 'Connection refused - error message')
+        end
+      end
     end
   end
 end
