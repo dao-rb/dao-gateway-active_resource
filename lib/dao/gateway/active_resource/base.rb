@@ -14,6 +14,8 @@ module Dao
           raise Dao::Gateway::RecordNotFound, e.message
         rescue ::ActiveResource::ConnectionError => e
           raise Dao::Gateway::BadConnection, e.to_s
+        rescue Errno::ECONNREFUSED => e
+          raise Dao::Gateway::BadConnection, e.to_s
         end
 
         def chain(scope, method_name, args, &block)

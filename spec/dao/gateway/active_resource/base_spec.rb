@@ -41,10 +41,26 @@ describe Dao::Gateway::ActiveResource::Base do
   end
 
   describe 'exceptions' do
-    describe '#chain' do
-      class Organization
-        def self.foo; end
+    describe '#save!' do
+      describe 'Dao::Gateway::BadConnection' do
+        before do
+          ActiveResource::HttpMock.respond_to do |mock|
+            mock.get '/organizations/1', {}, {}.to_json, 200
+          end
+
+          expect_any_instance_of(Organization).to receive(:save!).and_raise(Errno::ECONNREFUSED.new('error message'))
+        end
+
+        it 'should raise error' do
+          organization = OrganizationEntity.new(id: 1)
+
+          expect{ subject.save!(organization, nil) }.to raise_error(Dao::Gateway::BadConnection, 'Connection refused - error message')
+        end
       end
+    end
+
+    describe '#chain' do
+      class Organization; def self.foo; end; end
 
       describe 'Dao::Gateway::RecordNotFound' do
         before do
